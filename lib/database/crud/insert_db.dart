@@ -5,9 +5,9 @@
 // Define a function that inserts dogs into the database
 import 'package:sqflite/sqflite.dart';
 import 'package:sqlliteflutterapp/database/database_service.dart';
-import 'package:sqlliteflutterapp/models/dogs_model.dart';
+import 'package:sqlliteflutterapp/models/todo_model.dart';
 
-Future<void> insertDog({ required DogModel dogModel, required String tableName}) async {
+Future<void> insertTodo({ required TodoModel todoModel, required String tableName}) async {
   // Get a reference to the database.
   final Database db = await DataBaseService().database;
 
@@ -17,7 +17,7 @@ Future<void> insertDog({ required DogModel dogModel, required String tableName})
   // In this case, replace any previous data.
   await db.insert(
     tableName,
-    dogModel.toMap(),
+    todoModel.toMap(),
     conflictAlgorithm: ConflictAlgorithm.replace,
   );
 

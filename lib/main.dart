@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqlliteflutterapp/database/crud/delete_db.dart';
-import 'package:sqlliteflutterapp/database/crud/insert_db.dart';
-import 'package:sqlliteflutterapp/database/crud/read_db.dart';
 import 'package:sqlliteflutterapp/database/database_service.dart';
-import 'package:sqlliteflutterapp/models/dogs_model.dart';
+import 'package:sqlliteflutterapp/presentation/pages/list_todos.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,10 +23,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: ListOfTodos(),
     );
   }
 }
+/*
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -139,3 +137,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+*/

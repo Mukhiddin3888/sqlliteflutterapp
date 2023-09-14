@@ -1,14 +1,14 @@
 import 'package:path/path.dart';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:sqlliteflutterapp/database/dogs_db.dart';
+import 'package:sqlliteflutterapp/database/todo_db.dart';
 
 class DataBaseService{
 
 
   Database? _dataBase;
 
-  static const String tableName = 'dogs';
+  static const String tableName = 'todos';
 
   Future<Database> get database async {
     if(_dataBase != null){
@@ -21,7 +21,7 @@ class DataBaseService{
 
   Future<String> get fullPath async {
 
-    const name = 'dogs.database.db';
+    const name = 'todos.database.db';
 
     final path = await getDatabasesPath();
 
@@ -41,7 +41,7 @@ class DataBaseService{
   }
 
   Future<void> create(Database database, int version) async {
-  return  await DogsDB().createTable(database: database, tableName: tableName);
+  return  await TodoDB().createTable(database: database, tableName: tableName);
   }
 
 
