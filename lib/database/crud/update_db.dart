@@ -3,7 +3,7 @@ import 'package:sqlliteflutterapp/database/database_service.dart';
 
 import '../../models/todo_model.dart';
 
-Future<void> updateDog(
+Future<void> updateTodo(
     {required TodoModel todoModel, required String tableName}) async {
   final Database db = await DataBaseService().database;
 

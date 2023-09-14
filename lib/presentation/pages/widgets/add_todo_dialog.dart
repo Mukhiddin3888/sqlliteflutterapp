@@ -2,28 +2,36 @@
 
 
 import 'package:flutter/material.dart';
-
-import '../../../database/crud/insert_db.dart';
-import '../../../database/database_service.dart';
 import '../../../models/todo_model.dart';
 
 class AddTodoAlert extends StatefulWidget {
   const AddTodoAlert({
     super.key,
-    required this.titleController,
-    required this.subTitleController,
-    required this.onSubmitted,
+    required this.onSubmitted, this.todoModel,
   });
 
-  final TextEditingController titleController;
-  final TextEditingController subTitleController;
-  final Function() onSubmitted;
+  final Function(TodoModel todoModel) onSubmitted;
+  final TodoModel? todoModel;
 
   @override
   State<AddTodoAlert> createState() => _AddTodoAlertState();
 }
 
 class _AddTodoAlertState extends State<AddTodoAlert> {
+
+  late TextEditingController titleController ;
+  late TextEditingController subTitleController ;
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.todoModel != null){
+      titleController = TextEditingController(text: widget.todoModel?.title ?? '' );
+      subTitleController  = TextEditingController(text:  widget.todoModel?.subTitle ?? '') ;
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -31,7 +39,7 @@ class _AddTodoAlertState extends State<AddTodoAlert> {
       actions: [
         const Align(alignment: Alignment.topLeft, child: Text('Title')),
         TextField(
-          controller: widget.titleController,
+          controller: titleController,
           onChanged: (v){
             setState(() {
 
@@ -47,7 +55,7 @@ class _AddTodoAlertState extends State<AddTodoAlert> {
         ),
         const Align(alignment: Alignment.topLeft, child: Text('Subtitle')),
         TextField(
-          controller: widget.subTitleController,
+          controller: subTitleController,
           decoration: const InputDecoration(
             hintText: 'Todo subtitle',
             hintStyle: TextStyle(color: Colors.grey),
@@ -58,10 +66,9 @@ class _AddTodoAlertState extends State<AddTodoAlert> {
         ),
         GestureDetector(
           onTap: () {
-            if(widget.titleController.text.isNotEmpty ){
-              TodoModel todoModel = TodoModel(title: widget.titleController.text.trim(), subTitle: widget.subTitleController.text.trim());
-              insertTodo(todoModel: todoModel, tableName: DataBaseService.tableName);
-              widget.onSubmitted();
+            if(titleController.text.isNotEmpty ){
+              TodoModel todo = TodoModel(title: titleController.text.trim(), subTitle: subTitleController.text.trim());
+              widget.onSubmitted(todo);
             }else{
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 backgroundColor: Colors.redAccent,
@@ -77,10 +84,10 @@ class _AddTodoAlertState extends State<AddTodoAlert> {
             width: double.infinity,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: widget.titleController.text.isNotEmpty ? Colors.blueAccent : Colors.grey),
+                color: titleController.text.isNotEmpty ? Colors.blueAccent : Colors.grey),
             child:  Text(
               'Add Todo',
-              style: TextStyle(color: widget.titleController.text.isNotEmpty ? Colors.white : Colors.black),
+              style: TextStyle(color: titleController.text.isNotEmpty ? Colors.white : Colors.black),
             ),
           ),
         )
