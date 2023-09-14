@@ -3,7 +3,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:sqlliteflutterapp/database/database_service.dart';
 
-Future<void> deleteDB({ required int id, required String tableName}) async {
+Future<void> deleteDB({ int? id, required String tableName}) async {
 
   final Database db = await DataBaseService().database;
 
