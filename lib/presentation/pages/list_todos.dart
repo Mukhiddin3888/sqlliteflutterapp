@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:sqlliteflutterapp/database/crud/insert_db.dart';
+import 'package:sqlliteflutterapp/database/crud/read_db.dart';
+import 'package:sqlliteflutterapp/database/database_service.dart';
+
+import '../../models/todo_model.dart';
 
 class ListOfTodos extends StatefulWidget {
   const ListOfTodos({Key? key}) : super(key: key);
@@ -8,15 +13,22 @@ class ListOfTodos extends StatefulWidget {
 }
 
 class _ListOfTodosState extends State<ListOfTodos> {
-
   late TextEditingController titleController;
   late TextEditingController subTitleController;
+
+  List<TodoModel> list = [];
 
   @override
   void initState() {
     super.initState();
     titleController = TextEditingController();
     subTitleController = TextEditingController();
+
+    fetchDBData();
+  }
+
+  Future<void> fetchDBData() async {
+    list = await fetchAllDBInfo(tableName: DataBaseService.tableName);
   }
 
   @override
@@ -32,29 +44,43 @@ class _ListOfTodosState extends State<ListOfTodos> {
       appBar: AppBar(
         title: const Text('Todos'),
       ),
-      body: ListView.separated(
-        itemCount: 3,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: const Text('Name'),
-            subtitle: const Text('subtitle'),
-            leading: Checkbox(value: false, onChanged: (v) {}),
-            trailing: const Icon(
-              Icons.delete,
-              color: Colors.red,
+      body: list.isNotEmpty
+          ? ListView.separated(
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title:  Text(list[index].title),
+                  subtitle:  Text(list[index].subTitle),
+                  leading: Checkbox(value: false, onChanged: (v) {}),
+                  trailing: const Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return const Divider();
+              },
+            )
+          : const Center(
+              child: Text('No Todos for now'),
             ),
-          );
-        },
-        separatorBuilder: (context, index) {
-          return const Divider();
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
             context: context,
             builder: (context) {
-              return AddTodoAlert(titleController: titleController, subTitleController: subTitleController);
+              return AddTodoAlert(
+                  titleController: titleController,
+                  subTitleController: subTitleController,
+                onSubmitted: () async {
+                  list = await fetchAllDBInfo(tableName: DataBaseService.tableName);
+
+                  setState(()  {
+
+                    });
+                },
+              );
             },
           );
         },
@@ -64,25 +90,36 @@ class _ListOfTodosState extends State<ListOfTodos> {
   }
 }
 
-class AddTodoAlert extends StatelessWidget {
+class AddTodoAlert extends StatefulWidget {
   const AddTodoAlert({
     super.key,
     required this.titleController,
     required this.subTitleController,
+    required this.onSubmitted,
   });
 
   final TextEditingController titleController;
   final TextEditingController subTitleController;
+  final Function() onSubmitted;
 
+  @override
+  State<AddTodoAlert> createState() => _AddTodoAlertState();
+}
+
+class _AddTodoAlertState extends State<AddTodoAlert> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Center(child: Text('Add Todo')),
       actions: [
-        const Align(
-            alignment: Alignment.topLeft, child: Text('Title')),
+        const Align(alignment: Alignment.topLeft, child: Text('Title')),
         TextField(
-          controller: titleController,
+          controller: widget.titleController,
+          onChanged: (v){
+            setState(() {
+
+            });
+          },
           decoration: const InputDecoration(
             hintText: 'Todo title',
             hintStyle: TextStyle(color: Colors.grey),
@@ -91,10 +128,9 @@ class AddTodoAlert extends StatelessWidget {
         const SizedBox(
           height: 36,
         ),
-        const Align(
-            alignment: Alignment.topLeft, child: Text('Subtitle')),
+        const Align(alignment: Alignment.topLeft, child: Text('Subtitle')),
         TextField(
-          controller: subTitleController,
+          controller: widget.subTitleController,
           decoration: const InputDecoration(
             hintText: 'Todo subtitle',
             hintStyle: TextStyle(color: Colors.grey),
@@ -104,7 +140,18 @@ class AddTodoAlert extends StatelessWidget {
           height: 16,
         ),
         GestureDetector(
-          onTap: (){
+          onTap: () {
+            if(widget.titleController.text.isNotEmpty ){
+              TodoModel todoModel = TodoModel(title: widget.titleController.text.trim(), subTitle: widget.subTitleController.text.trim());
+              insertTodo(todoModel: todoModel, tableName: DataBaseService.tableName);
+              widget.onSubmitted();
+            }else{
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                backgroundColor: Colors.redAccent,
+                content: Center(child: Text("Todo Not Added")),
+              ));
+            }
+
             Navigator.pop(context);
           },
           child: Container(
@@ -113,8 +160,11 @@ class AddTodoAlert extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.blueAccent),
-            child: const Text('Add Todo', style: TextStyle(color: Colors.white),),
+                color: widget.titleController.text.isNotEmpty ? Colors.blueAccent : Colors.grey),
+            child:  Text(
+              'Add Todo',
+              style: TextStyle(color: widget.titleController.text.isNotEmpty ? Colors.white : Colors.black),
+            ),
           ),
         )
       ],
